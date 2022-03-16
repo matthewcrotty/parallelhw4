@@ -90,7 +90,7 @@ __global__ void reduce7(const T *__restrict__ g_idata, T *__restrict__ g_odata,
 }
 
 
-extern "C" void launch_kernels(int my_rank, int world_size){
+extern "C" double launch_kernels(int my_rank, int world_size){
     int cudaDeviceCount = 0;
     cudaError_t cE;
     if( (cE = cudaGetDeviceCount(&cudaDeviceCount)) != cudaSuccess){
@@ -102,4 +102,6 @@ extern "C" void launch_kernels(int my_rank, int world_size){
         printf(" Unable to have rank %d set to cuda device %d, error is %d \n", my_rank, (my_rank % cudaDeviceCount), cE);
         exit(-1);
     }
+
+    return 0;
 }
