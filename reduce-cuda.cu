@@ -1,3 +1,26 @@
+#include <stdio.h>
+
+template <class T>
+struct SharedMemory {
+  __device__ inline operator T *() {
+    extern __shared__ int __smem[];
+    return (T *)__smem;
+  }
+
+  __device__ inline operator const T *() const {
+    extern __shared__ int __smem[];
+    return (T *)__smem;
+  }
+};
+
+
+template <class T>
+__device__ __forceinline__ T warpReduceSum(unsigned int mask, T mySum) {
+  for (int offset = warpSize / 2; offset > 0; offset /= 2) {
+    mySum += __shfl_down_sync(mask, mySum, offset);
+  }
+  return mySum;
+}
 
 
 template <typename T, unsigned int blockSize, bool nIsPow2>
@@ -64,4 +87,19 @@ __global__ void reduce7(const T *__restrict__ g_idata, T *__restrict__ g_odata,
   if (tid == 0) {
     g_odata[blockIdx.x] = mySum;
   }
+}
+
+
+extern "C" void launch_kernels(int my_rank, int world_size){
+    int cudaDeviceCount = 0;
+    cudaError_t cE;
+    if( (cE = cudaGetDeviceCount(&cudaDeviceCount)) != cudaSuccess){
+        printf(" Unable to determine cuda device count, error is %d, count is %d\n", cE, cudaDeviceCount);
+        exit(-1);
+    }
+
+    if( (cE = cudaSetDevice(my_rank % cudaDeviceCount)) != cudaSuccess){
+        printf(" Unable to have rank %d set to cuda device %d, error is %d \n", my_rank, (my_rank % cudaDeviceCount), cE);
+        exit(-1);
+    }
 }

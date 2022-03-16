@@ -1,1 +1,5 @@
 /examples
+Makefile
+reduce-mpi.o
+reduce-cuda.o
+reduce-exe
