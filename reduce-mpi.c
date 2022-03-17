@@ -24,7 +24,10 @@ int main(int argc, char** argv){
 
     printf("Rank %d has %d sized block\n", my_rank, num_elements);
 
-    double result = launch_kernels(my_rank, world_size);
+    double rank_sum = launch_kernels(my_rank, world_size);
+
+    double result = 0;
+    MPI_Reduce(&rank_sum, &result, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
     if(my_rank == 0){
         printf("Result %f\n", result);

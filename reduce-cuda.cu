@@ -103,5 +103,5 @@ extern "C" double launch_kernels(int my_rank, int world_size){
         exit(-1);
     }
 
-    return 0;
+    return my_rank;
 }
