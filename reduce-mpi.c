@@ -4,7 +4,8 @@
 
 #define array_size 1610612736
 
-double launch_kernels(int my_rank, int world_size);
+extern void initCuda(int my_rank, int num_elements);
+extern void reduceCuda(int size, int threads, int blocks, double *d_idata, double *d_odata);
 
 int main(int argc, char** argv){
 
@@ -24,7 +25,9 @@ int main(int argc, char** argv){
 
     printf("Rank %d has %d sized block\n", my_rank, num_elements);
 
-    double rank_sum = launch_kernels(my_rank, world_size);
+    initCuda(my_rank, num_elements);
+
+    double rank_sum = my_rank;
 
     double result = 0;
     MPI_Reduce(&rank_sum, &result, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
