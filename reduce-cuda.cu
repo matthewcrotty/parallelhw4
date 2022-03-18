@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 extern "C" double* input_data;
+extern "C" double* output_data;
 
 
 struct SharedMemory {
@@ -108,5 +109,7 @@ extern "C" void initCuda(int my_rank, int num_elements, double** data){
 extern "C" void reduceCuda(int num_elements, int threads, int blocks, double* input, double* output){
     dim3 dimGrid(blocks, 1, 1);
     dim3 dimBlock(threads, 1, 1);
+
     reduce7<512><<<dimGrid, dimBlock>>>(input, output, num_elements);
+    printf("Local result: %f\n", *output);
 }
