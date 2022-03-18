@@ -110,6 +110,13 @@ extern "C" void reduceCuda(int num_elements, int threads, int blocks, double* in
     dim3 dimGrid(blocks, 1, 1);
     dim3 dimBlock(threads, 1, 1);
 
-    reduce7<512><<<dimGrid, dimBlock>>>(input, output, num_elements);
+    double* local_sum;
+    cudaMallocManaged(&local_sum, sizeof(double));
+
+    reduce7<512><<<dimGrid, dimBlock>>>(input, local_sum, num_elements);
     printf("Local result: %f\n", *output);
+
+    *output = *local_sum;
+    cudaFree(input);
+    cudaFree(local_sum);
 }
