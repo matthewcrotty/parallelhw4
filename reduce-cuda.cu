@@ -81,7 +81,7 @@ __global__ void reduce7(const double *__restrict__ g_idata, double *__restrict__
 }
 
 
-extern "C" void initCuda(int my_rank, int num_elements, double*& data){
+extern "C" void initCuda(int my_rank, int num_elements, double** data){
     int cudaDeviceCount = 0;
     cudaError_t cE;
     if( (cE = cudaGetDeviceCount(&cudaDeviceCount)) != cudaSuccess){
@@ -98,7 +98,7 @@ extern "C" void initCuda(int my_rank, int num_elements, double*& data){
 
     cudaMallocManaged(&data, num_elements * sizeof(data));
     for(int i = 0; i < num_elements; i++){
-        data[i] = i + (num_elements * my_rank);
+        (*data)[i] = i + (num_elements * my_rank);
     }
 
 }

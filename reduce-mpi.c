@@ -4,7 +4,7 @@
 
 #define array_size 1610612736
 
-extern void initCuda(int my_rank, int num_elements, double* data);
+extern void initCuda(int my_rank, int num_elements, double** data);
 extern void reduceCuda(int size, int threads, int blocks, double *d_idata, double *d_odata);
 
 int main(int argc, char** argv){
@@ -28,7 +28,11 @@ int main(int argc, char** argv){
     printf("Rank %d has %d sized block\n", my_rank, num_elements);
 
     double* data;
-    initCuda(my_rank, num_elements, data);
+    initCuda(my_rank, num_elements, &data);
+
+    for(int i = 0; i < num_elements; i++){
+        printf("%f\n", data[i]);
+    }
 
     double rank_sum = 0;
     reduceCuda(num_elements, 0, 0, data, &rank_sum);
