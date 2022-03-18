@@ -7,7 +7,7 @@
 double* input_data;
 
 extern void initCuda(int my_rank, int num_elements);
-extern void reduceCuda(int size, int threads, int blocks, double *d_idata, double *d_odata);
+extern void reduceCuda(int size, int threads, int blocks, double *d_idata, double *d_odata, int my_rank);
 
 int main(int argc, char** argv){
 
@@ -32,11 +32,11 @@ int main(int argc, char** argv){
     initCuda(my_rank, num_elements);
 
     for(int i = 0; i < num_elements; i++){
-        printf("%f\n", input_data[i]);
+        printf("Rank %d: %f\n", my_rank, input_data[i]);
     }
 
     double rank_sum = 0;
-    reduceCuda(num_elements, 0, 0, input_data, &rank_sum);
+    reduceCuda(num_elements, 0, 0, input_data, &rank_sum, my_rank);
 
     double result = 0;
     MPI_Reduce(&rank_sum, &result, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
