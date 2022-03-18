@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+extern "C" double* input_data;
+
 
 struct SharedMemory {
     __device__ inline operator double *() {
@@ -96,9 +98,9 @@ extern "C" void initCuda(int my_rank, int num_elements, double** data){
 
     printf("Mapping Rank %d to CUDA Device %d \n", my_rank, (my_rank % cudaDeviceCount));
 
-    cudaMallocManaged(&data, num_elements * sizeof(data));
+    cudaMallocManaged(&input_data, num_elements * sizeof(double));
     for(int i = 0; i < num_elements; i++){
-        (*data)[i] = i + (num_elements * my_rank);
+        input_data[i] = i + (num_elements * my_rank);
     }
 
 }
