@@ -105,8 +105,8 @@ extern "C" void initCuda(int my_rank, int num_elements, double** data){
 
 }
 
-extern "C" void reduceCuda(int num_elements, int threads, int blocks, double* input, double* output, int my_rank){
-    for(int i = 0; i < num_elements; i++){
-        printf("Rank %d, %f\n", my_rank, input[i]);
-    }
+extern "C" void reduceCuda(int num_elements, int threads, int blocks, double* input, double* output){
+    dim3 dimGrid(blocks, 1, 1);
+    dim3 dimBlock(threads, 1, 1);
+    reduce7<512><<<dimGrid, dimBlock>>>(input, output, num_elements);
 }
