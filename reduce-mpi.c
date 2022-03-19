@@ -28,8 +28,6 @@ int main(int argc, char** argv){
         num_elements = array_size/world_size;
     }
 
-    // num_elements = 10;
-
     printf("Rank %d has %d sized block\n", my_rank, num_elements);
 
     initCuda(my_rank, num_elements);
