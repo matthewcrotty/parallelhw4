@@ -105,7 +105,7 @@ extern "C" void initCuda(int my_rank, int num_elements){
         exit(-1);
     }
 
-    printf("Mapping Rank %d to CUDA Device %d \n", my_rank, (my_rank % cudaDeviceCount));
+    //printf("Mapping Rank %d to CUDA Device %d \n", my_rank, (my_rank % cudaDeviceCount));
 
     cudaMallocManaged(&input_data, num_elements * sizeof(double));
     cudaMallocManaged(&output_data, num_elements * sizeof(double));
