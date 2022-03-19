@@ -5,8 +5,9 @@
 #define array_size 1610612736
 #define num_threads 512
 
-double* input_data;
-double* output_data;
+double* input_data = NULL;
+double* output_data = NULL;
+double my_sum;
 
 extern void initCuda(int my_rank, int num_elements);
 extern void reduceCuda(int size, int threads, int blocks, double *d_idata, double *d_odata);
@@ -36,7 +37,7 @@ int main(int argc, char** argv){
     reduceCuda(num_elements, num_threads, num_elements/num_threads, input_data, output_data);
 
     double result = 0;
-    MPI_Reduce(output_data, &result, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&my_sum, &result, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
     if(my_rank == 0){
         printf("Result %f\n", result);

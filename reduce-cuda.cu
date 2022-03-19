@@ -2,6 +2,7 @@
 
 extern "C" double* input_data;
 extern "C" double* output_data;
+extern "C" double my_sum;
 
 
 struct SharedMemory {
@@ -84,7 +85,7 @@ __global__ void reduce7(const double *__restrict__ g_idata, double *__restrict__
 }
 
 
-extern "C" void initCuda(int my_rank, int num_elements, double** data){
+extern "C" void initCuda(int my_rank, int num_elements){
     int cudaDeviceCount = 0;
     cudaError_t cE;
     if( (cE = cudaGetDeviceCount(&cudaDeviceCount)) != cudaSuccess){
@@ -100,8 +101,11 @@ extern "C" void initCuda(int my_rank, int num_elements, double** data){
     printf("Mapping Rank %d to CUDA Device %d \n", my_rank, (my_rank % cudaDeviceCount));
 
     cudaMallocManaged(&input_data, num_elements * sizeof(double));
+    cudaMallocManaged(&output_data, num_elements * sizeof(double));
+
     for(int i = 0; i < num_elements; i++){
         input_data[i] = i + (num_elements * my_rank);
+        output_data[i] = 0.0;
     }
 
 }
@@ -111,13 +115,13 @@ extern "C" void reduceCuda(int num_elements, int threads, int blocks, double* in
     dim3 dimBlock(threads, 1, 1);
     int smemSize = ((threads / 32) + 1) * sizeof(double);
 
-    double* local_sum;
-    cudaMallocManaged(&local_sum, sizeof(double));
 
-    reduce7<512><<<dimGrid, dimBlock, smemSize>>>(input, local_sum, num_elements);
-    printf("Local result: %f\n", *output);
+    reduce7<512><<<dimGrid, dimBlock, smemSize>>>(input, output, num_elements);
 
-    *output = *local_sum;
+    for(int i = 0; i < num_elements/512; i++){
+        my_sum += output_data[i];
+    }
+
     cudaFree(input);
-    cudaFree(local_sum);
+
 }
