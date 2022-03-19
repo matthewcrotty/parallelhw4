@@ -35,6 +35,7 @@ int main(int argc, char** argv){
     initCuda(my_rank, num_elements);
 
     reduceCuda(num_elements, num_threads, num_elements/num_threads, input_data, output_data);
+    printf("Rank %d has %f\n", my_rank, my_sum);
 
     double result = 0;
     MPI_Reduce(&my_sum, &result, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);

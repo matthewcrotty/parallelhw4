@@ -115,12 +115,13 @@ extern "C" void reduceCuda(int num_elements, int threads, int blocks, double* in
     dim3 dimBlock(threads, 1, 1);
     int smemSize = ((threads / 32) + 1) * sizeof(double);
 
-
-    reduce7<512><<<dimGrid, dimBlock, smemSize>>>(input, output, num_elements);
+    reduce7<512><<<dimGrid, dimBlock, smemSize>>>(input_data, output_data, num_elements);
 
     for(int i = 0; i < num_elements/512; i++){
         my_sum += output_data[i];
     }
+    printf("Cuda sum %f\n", my_sum);
+
 
     cudaFree(input);
 
