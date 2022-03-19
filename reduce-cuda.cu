@@ -109,11 +109,12 @@ extern "C" void initCuda(int my_rank, int num_elements, double** data){
 extern "C" void reduceCuda(int num_elements, int threads, int blocks, double* input, double* output){
     dim3 dimGrid(blocks, 1, 1);
     dim3 dimBlock(threads, 1, 1);
+    int smemSize = ((threads / 32) + 1) * sizeof(double);
 
     double* local_sum;
     cudaMallocManaged(&local_sum, sizeof(double));
 
-    reduce7<512><<<dimGrid, dimBlock>>>(input, local_sum, num_elements);
+    reduce7<512><<<dimGrid, dimBlock, smemSize>>>(input, local_sum, num_elements);
     printf("Local result: %f\n", *output);
 
     *output = *local_sum;
