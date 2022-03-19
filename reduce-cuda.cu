@@ -137,5 +137,5 @@ extern "C" void reduceCuda(int num_elements, int threads, int blocks, double* in
 
 
     cudaFree(input);
-    cudaFree(ouput);
+    cudaFree(output);
 }
