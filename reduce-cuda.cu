@@ -122,9 +122,9 @@ extern "C" void reduceCuda(int num_elements, int threads, int blocks, double* in
     dim3 dimBlock(threads, 1, 1);
     int smemSize = ((threads / 32) + 1) * sizeof(double);
 
-    for(int i = 0; i < num_elements; i++){
-        printf("IN %f \n", input[i]);
-    }
+    // for(int i = 0; i < num_elements; i++){
+    //     printf("IN %f \n", input[i]);
+    // }
 
     if(((num_elements & (num_elements - 1)) == 0)){
         reduce7<1024, true><<<dimGrid, dimBlock, smemSize>>>(input, output, num_elements);
@@ -133,9 +133,11 @@ extern "C" void reduceCuda(int num_elements, int threads, int blocks, double* in
         reduce7<1024, false><<<dimGrid, dimBlock, smemSize>>>(input, output, num_elements);
     }
 
-    for(int i = 0; i < num_elements; i++){
-        printf("OUT %f \n", output[i]);
-    }
+    cudaDeviceSynchronize();
+
+    // for(int i = 0; i < num_elements; i++){
+    //     printf("OUT %f \n", output[i]);
+    // }
 
     for(int i = 0; i < num_elements/1024; i++){
         my_sum += output[i];

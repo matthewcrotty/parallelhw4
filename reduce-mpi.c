@@ -3,7 +3,7 @@
 #include <mpi.h>
 
 #define array_size 1610612736
-#define num_threads 512
+#define num_threads 1024
 
 double* input_data = NULL;
 double* output_data = NULL;
@@ -28,7 +28,7 @@ int main(int argc, char** argv){
         num_elements = array_size/world_size;
     }
 
-    num_elements = 10;
+    // num_elements = 10;
 
     printf("Rank %d has %d sized block\n", my_rank, num_elements);
 
