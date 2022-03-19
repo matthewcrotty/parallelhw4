@@ -35,13 +35,30 @@ int main(int argc, char** argv){
         num_elements = array_size/world_size;
     }
 
-    initCuda(my_rank, num_elements);
+    //initCuda(my_rank, num_elements);
+
+    input_data = (double*)malloc(sizeof(double) * num_elements);
+    for(int i = 0; i < num_elements; i++){
+        input_data[i] = i + (num_elements * my_rank);
+    }
+    double local_sum = 0;
+    for(int i = 0; i < num_elements; i++){
+        local_sum += input_data[i];
+    }
+
 
     // Timed Section of computation
     start_time = clock_now();
-    reduceCuda(num_elements, num_threads, num_elements/num_threads, input_data, output_data);
+
+    // Cuda reduce
+    // reduceCuda(num_elements, num_threads, num_elements/num_threads, input_data, output_data);
+
     double result = 0;
-    MPI_Reduce(&my_sum, &result, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+
+    // MPI_Reduce(&my_sum, &result, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+
+    // MPI reduce
+    MPI_Reduce(&local_sum, &result, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
     end_time = clock_now();
 
     MPI_Barrier(MPI_COMM_WORLD);
