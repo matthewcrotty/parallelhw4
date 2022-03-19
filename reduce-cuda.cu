@@ -26,7 +26,7 @@ __device__ __forceinline__ double warpReduceSum(unsigned int mask, double mySum)
 }
 
 
-template <unsigned int blockSize>
+template <unsigned int blockSize, bool nIsPow2>
 __global__ void reduce7(const double *__restrict__ g_idata, double *__restrict__ g_odata,
             unsigned int n) {
     double *sdata = SharedMemory();
@@ -44,18 +44,25 @@ __global__ void reduce7(const double *__restrict__ g_idata, double *__restrict__
     // we reduce multiple elements per thread.  The number is determined by the
     // number of active thread blocks (via gridDim).  More blocks will result
     // in a larger gridSize and therefore fewer elements per thread
+    if (nIsPow2) {
+      unsigned int i = blockIdx.x * blockSize * 2 + threadIdx.x;
+      gridSize = gridSize << 1;
 
-    unsigned int i = blockIdx.x * blockSize * 2 + threadIdx.x;
-    gridSize = gridSize << 1;
-
-    while (i < n) {
+      while (i < n) {
         mySum += g_idata[i];
         // ensure we don't read out of bounds -- this is optimized away for
         // powerOf2 sized arrays
         if ((i + blockSize) < n) {
-            mySum += g_idata[i + blockSize];
+          mySum += g_idata[i + blockSize];
         }
         i += gridSize;
+      }
+    } else {
+      unsigned int i = blockIdx.x * blockSize + threadIdx.x;
+      while (i < n) {
+        mySum += g_idata[i];
+        i += gridSize;
+      }
     }
 
     // Reduce within warp using shuffle or reduce_add if T==int & CUDA_ARCH ==
@@ -115,7 +122,7 @@ extern "C" void reduceCuda(int num_elements, int threads, int blocks, double* in
     dim3 dimBlock(threads, 1, 1);
     int smemSize = ((threads / 32) + 1) * sizeof(double);
 
-    reduce7<512><<<dimGrid, dimBlock, smemSize>>>(input_data, output_data, num_elements);
+    reduce7<512, false><<<dimGrid, dimBlock, smemSize>>>(input_data, output_data, num_elements);
 
     for(int i = 0; i < num_elements/512; i++){
         my_sum += output_data[i];
